@@ -1,9 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetName>Microsoft.AspNetCore.Blazor.Build.Tasks</TargetName>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AssemblyName>Microsoft.AspNetCore.Blazor.Build</AssemblyName>
     <Description>Build mechanism for ASP.NET Core Blazor applications.</Description>
-    <OutputType>Exe</OutputType>
     <IsShippingPackage>true</IsShippingPackage>
     <HasReferenceAssembly>false</HasReferenceAssembly>
   </PropertyGroup>
@@ -12,7 +14,6 @@
   <PropertyGroup>
     <!-- Producing this package requires building with NodeJS enabled. -->
     <IsPackable Condition="'$(BuildNodeJS)' == 'false'">false</IsPackable>
-    <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);Publish</GenerateNuspecDependsOn>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <NuspecFile>Microsoft.AspNetCore.Blazor.Build.nuspec</NuspecFile>
   </PropertyGroup>
@@ -27,9 +28,25 @@
 
   <ItemGroup>
     <ProjectReference Condition="'$(BuildNodeJS)' != 'false' and '$(BuildingInsideVisualStudio)' != 'true'" Include="$(RepoRoot)src\Components\Web.JS\Microsoft.AspNetCore.Components.Web.JS.npmproj" ReferenceOutputAssembly="false" />
-    <Reference Include="Microsoft.Extensions.CommandLineUtils.Sources" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Utilities.Core" />
     <Reference Include="System.Reflection.Metadata" />
+    <Reference Include="System.Text.Json" />
   </ItemGroup>
+
+  <Target Name="CopyBuildTask" BeforeTargets="Build" AfterTargets="PrepareForRun">
+    <!-- If you see a build warning here and you mean to update the tasks dll when building in VS, manually stop MSBuild.exe processes. -->
+    <Copy SourceFiles="@(IntermediateAssembly)" DestinationFolder="$(OutputPath)tools" SkipUnchangedFiles="true" Retries="1" ContinueOnError="true">
+      <Output TaskParameter="CopiedFiles" ItemName="FileWrites" />
+      <Output TaskParameter="CopiedFiles" ItemName="_CopiedIntermediateAssembly"/>
+    </Copy>
+
+    <Copy SourceFiles="@(ReferenceCopyLocalPaths);@(_DebugSymbolsIntermediatePath)" DestinationFolder="$(OutputPath)tools" SkipUnchangedFiles="true"  Retries="1" ContinueOnError="true">
+      <Output TaskParameter="CopiedFiles" ItemName="FileWrites" />
+    </Copy>
+
+    <Message Text="$(MSBuildThisFileName) -> @(_CopiedIntermediateAssembly->'%(FullPath)')" Importance="high"/>
+  </Target>
 
   <ItemGroup>
     <Compile Include="..\..\..\Shared\src\JsonSerializerOptionsProvider.cs" />

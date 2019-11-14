@@ -11,7 +11,9 @@
 
   <PropertyGroup>
     <BlazorBuildReferenceFromSource>true</BlazorBuildReferenceFromSource>
-    <BlazorJsPath>$(RepoRoot)src\Components\Web.JS\dist\$(Configuration)\blazor.*.js.*</BlazorJsPath>
+    <BlazorJsPath>$(RepoRoot)src\Components\Web.JS\dist\$(Configuration)\blazor.webassembly.js</BlazorJsPath>
+    <BlazorJsMapPath>$(RepoRoot)src\Components\Web.JS\dist\$(Configuration)\blazor.webassembly.js.map</BlazorJsMapPath>
+    <BlazorToolsDir>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\tools\</BlazorToolsDir>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)targets/All.props" />

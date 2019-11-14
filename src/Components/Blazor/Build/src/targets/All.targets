@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BlazorToolsDir Condition="'$(BlazorToolsDir)' == ''">$(MSBuildThisFileDirectory)../tools/</BlazorToolsDir>
-    <BlazorBuildExe>dotnet &quot;$(BlazorToolsDir)Microsoft.AspNetCore.Blazor.Build.dll&quot;</BlazorBuildExe>
+    <BlazorToolsDir Condition="'$(BlazorToolsDir)' == ''">$(MSBuildThisFileDirectory)..\tools\</BlazorToolsDir>
+    <BlazorTasksPath>$(BlazorToolsDir)Microsoft.AspNetCore.Blazor.Build.Tasks.dll</BlazorTasksPath>
 
     <!-- The Blazor build code can only find your referenced assemblies if they are in the output directory -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>

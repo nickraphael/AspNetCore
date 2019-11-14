@@ -1,45 +1,50 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 
 namespace Microsoft.AspNetCore.Blazor.Build
 {
-    internal class BootJsonWriter
+    public class GenerateBlazorBootJson : Task
     {
-        public static void WriteFile(
-            string assemblyPath,
-            string[] assemblyReferences,
-            bool linkerEnabled,
-            string outputPath)
-        {
-            var bootJsonText = GetBootJsonContent(
-                AssemblyName.GetAssemblyName(assemblyPath).Name,
-                assemblyReferences,
-                linkerEnabled);
-            var normalizedOutputPath = Path.GetFullPath(outputPath);
-            Console.WriteLine("Writing boot data to: " + normalizedOutputPath);
-            File.WriteAllText(normalizedOutputPath, bootJsonText);
-        }
+        [Required]
+        public string AssemblyPath { get; set; }
 
-        public static string GetBootJsonContent(string entryAssembly, string[] assemblyReferences, bool linkerEnabled)
+        [Required]
+        public ITaskItem[] References { get; set; }
+
+        [Required]
+        public bool LinkerEnabled { get; set; }
+
+        [Required]
+        public string OutputPath { get; set; }
+
+        public override bool Execute()
         {
+            var assemblyReferences = References.Select(c => Path.GetFileName(c.ItemSpec)).ToArray();
+
             var data = new BootJsonData(
-                entryAssembly,
+                AssemblyName.GetAssemblyName(AssemblyPath).Name,
                 assemblyReferences,
-                linkerEnabled);
-            return JsonSerializer.Serialize(data, JsonSerializerOptionsProvider.Options);
+                LinkerEnabled);
+
+            var bootJsonText = JsonSerializer.Serialize(data, JsonSerializerOptionsProvider.Options);
+            File.WriteAllText(OutputPath, bootJsonText);
+
+            return true;
         }
 
         /// <summary>
         /// Defines the structure of a Blazor boot JSON file
         /// </summary>
-        readonly struct BootJsonData
+        private readonly struct BootJsonData
         {
             public string EntryAssembly { get; }
             public IEnumerable<string> AssemblyReferences { get; }
