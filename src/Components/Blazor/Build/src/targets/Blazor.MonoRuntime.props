@@ -10,13 +10,11 @@
     <BaseBlazorDistPath>dist\</BaseBlazorDistPath>
     <BaseBlazorPackageContentOutputPath>$(BaseBlazorDistPath)_content\</BaseBlazorPackageContentOutputPath>
     <BaseBlazorRuntimeOutputPath>$(BaseBlazorDistPath)_framework\</BaseBlazorRuntimeOutputPath>
-    <BaseBlazorRuntimeBinOutputPath>$(BaseBlazorRuntimeOutputPath)_bin\</BaseBlazorRuntimeBinOutputPath>
-    <BaseBlazorRuntimeWasmOutputPath>$(BaseBlazorRuntimeOutputPath)wasm\</BaseBlazorRuntimeWasmOutputPath>
-    <BaseBlazorJsOutputPath>$(BaseBlazorRuntimeOutputPath)</BaseBlazorJsOutputPath>
-    <BaseBlazorIntermediateOutputPath>blazor\</BaseBlazorIntermediateOutputPath>
-    <BlazorWebRootName>wwwroot/</BlazorWebRootName>
+    <BlazorRuntimeBinOutputPath>$(BaseBlazorRuntimeOutputPath)_bin\</BlazorRuntimeBinOutputPath>
+    <BlazorRuntimeWasmOutputPath>$(BaseBlazorRuntimeOutputPath)wasm\</BlazorRuntimeWasmOutputPath>
+    <BlazorWebRootName>wwwroot\</BlazorWebRootName>
     <BlazorBootJsonName>blazor.boot.json</BlazorBootJsonName>
-    <BlazorBootJsonOutputPath>$(BaseBlazorRuntimeOutputPath)$(BlazorBootJsonName)</BlazorBootJsonOutputPath>
+    <_BlazorBuiltInBclLinkerDescriptor>$(MSBuildThisFileDirectory)BuiltInBclLinkerDescriptor.xml</_BlazorBuiltInBclLinkerDescriptor>
   </PropertyGroup>
 
 </Project>

@@ -109,7 +109,7 @@ namespace Microsoft.AspNetCore.Blazor.Build.Test
 
             // Act
 
-            var paths = ResolveRuntimeDependencies
+            var paths = ResolveBlazorRuntimeDependencies
                 .ResolveRuntimeDependenciesCore(
                     mainAssemblyLocation,
                     references,

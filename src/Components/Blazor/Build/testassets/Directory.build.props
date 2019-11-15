@@ -1,0 +1,9 @@
+<Project>
+    <Import Project="Before.Directory.build.props" Condition="Exists('Before.Directory.build.props')" />
+
+    <PropertyGroup>
+        <ComponentsRoot Condition="'$(ComponentsRoot)'==''">$(MSBuildThisFileDirectory)..\..\..\</ComponentsRoot>
+        <BlazorBuildRoot>$(ComponentsRoot)Blazor\Build\src\</BlazorBuildRoot>
+        <ReferenceBlazorBuildFromSourceProps>$(BlazorBuildRoot)ReferenceBlazorBuildFromSource.props</ReferenceBlazorBuildFromSourceProps>
+    </PropertyGroup>
+</Project>

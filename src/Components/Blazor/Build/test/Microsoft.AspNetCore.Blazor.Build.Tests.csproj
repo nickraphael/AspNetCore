@@ -26,6 +26,7 @@
     <Reference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions" />
     <Reference Include="Microsoft.AspNetCore.Razor.Language" />
     <Reference Include="Microsoft.CodeAnalysis.Razor" />
+    <Reference Include="Microsoft.Extensions.CommandLineUtils.Sources" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +34,18 @@
     <Compile Include="$(SharedSourceRoot)test\SkipOnHelixAttribute.cs" />
 
     <Compile Include="$(ComponentsSharedSourceRoot)test\**\*.cs" LinkBase="Helpers" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>Testing.ComponentsRoot</_Parameter1>
+      <_Parameter2>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Components.sln))\</_Parameter2>
+    </AssemblyAttribute>
+
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>Testing.GlobalJsonPath</_Parameter1>
+      <_Parameter2>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), global.json))\global.json</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 
   <!-- A bit of msbuild magic to support reference resolver tests -->

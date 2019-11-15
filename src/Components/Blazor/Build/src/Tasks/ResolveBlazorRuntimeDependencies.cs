@@ -39,7 +39,7 @@ namespace Microsoft.AspNetCore.Blazor.Build
         public static IEnumerable<string> ResolveRuntimeDependenciesCore(
             string entryPoint,
             IEnumerable<string> applicationDependencies,
-            IEnumerable<string> monoBclDirectories)
+            IEnumerable<string> monoBclAssemblies)
         {
             var assembly = new AssemblyEntry(entryPoint, GetAssemblyName(entryPoint));
 
@@ -47,8 +47,7 @@ namespace Microsoft.AspNetCore.Blazor.Build
                 .Select(a => new AssemblyEntry(a, GetAssemblyName(a)))
                 .ToArray();
 
-            var bcl = monoBclDirectories
-                .SelectMany(d => Directory.EnumerateFiles(d, "*.dll").Select(f => Path.Combine(d, f)))
+            var bcl = monoBclAssemblies
                 .Select(a => new AssemblyEntry(a, GetAssemblyName(a)))
                 .ToArray();
 

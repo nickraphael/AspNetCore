@@ -1,24 +1,6 @@
 <Project>
-
   <PropertyGroup>
     <BlazorLinkOnBuild Condition="$(BlazorLinkOnBuild) == ''">true</BlazorLinkOnBuild>
-    <_BlazorBuiltInBclLinkerDescriptor>$(MSBuildThisFileDirectory)BuiltInBclLinkerDescriptor.xml</_BlazorBuiltInBclLinkerDescriptor>
-    
-    <!-- /obj/<<configuration>>/<<targetframework>>/blazor -->
-    <BlazorIntermediateOutputPath>$(IntermediateOutputPath)$(BaseBlazorIntermediateOutputPath)</BlazorIntermediateOutputPath>
-
-    <!-- /obj/<<configuration>>/<<targetframework>>/blazor/linker.descriptor.xml -->
-    <GeneratedBlazorLinkerDescriptor>$(BlazorIntermediateOutputPath)linker.descriptor.xml</GeneratedBlazorLinkerDescriptor>
-
-    <!-- /obj/<<configuration>>/<<targetframework>>/blazor/linker/ -->
-    <BlazorIntermediateLinkerOutputPath>$(BlazorIntermediateOutputPath)linker/</BlazorIntermediateLinkerOutputPath>
-
-    <!-- /obj/<<configuration>>/<<targetframework>>/blazor/blazor.boot.json -->
-    <BlazorBootJsonIntermediateOutputPath>$(BlazorIntermediateOutputPath)$(BlazorBootJsonName)</BlazorBootJsonIntermediateOutputPath>
-
-    <BlazorRuntimeBinOutputPath>$(TargetDir)$(BaseBlazorRuntimeBinOutputPath)</BlazorRuntimeBinOutputPath>
-
-    <_BlazorLinkerOutputCache>$(IntermediateOutputPath)blazor.linker.output</_BlazorLinkerOutputCache>
   </PropertyGroup>
 
   <Target
@@ -32,7 +14,7 @@
     <!-- Copy the blazor output files  -->
     <Copy
       SourceFiles="@(BlazorOutputWithTargetPath)"
-      DestinationFiles="@(BlazorOutputWithTargetPath->'%(TargetOutputPath)')"
+      DestinationFiles="@(BlazorOutputWithTargetPath->'$(TargetDir)%(TargetOutputPath)')"
       SkipUnchangedFiles="$(SkipCopyUnchangedFiles)"
       OverwriteReadOnlyFiles="$(OverwriteReadOnlyFiles)"
       Retries="$(CopyRetryCount)"
@@ -45,53 +27,67 @@
     <ItemGroup>
       <FileWrites Include="@(BlazorOutputWithTargetPath->'%(TargetOutputPath)')" />
     </ItemGroup>
-  </Target>
-
-  <Target 
-    Name="_BlazorBuildReport"
-    AfterTargets="_BlazorCopyFilesToOutputDirectory">
 
     <ItemGroup>
       <_BlazorStatisticsOutput Include="@(BlazorOutputWithTargetPath->'%(TargetOutputPath)')" />
     </ItemGroup>
-    <PropertyGroup>
-      <_BlazorStatisticsReportImportance Condition="'$(BlazorOutputStatistics)' == ''">normal</_BlazorStatisticsReportImportance>
-      <_BlazorStatisticsReportImportance Condition="'$(BlazorOutputStatistics)' != ''">high</_BlazorStatisticsReportImportance>
-    </PropertyGroup>
-
-    <Message Importance="high" Text="Blazor Build result -> @(_BlazorStatisticsOutput->Distinct()->Count()) files in $(TargetDir)dist" />
-    <Message Importance="$(_BlazorStatisticsReportImportance)" Text="%(_BlazorStatisticsOutput.Identity)" />
+    
+    <Message Importance="high" Text="$(TargetName) (Blazor output) -> $(TargetDir)dist" />
   </Target>
 
   <Target 
     Name="PrepareBlazorOutputs" 
-    DependsOnTargets="_PrepareBlazorInputs;_ResolveBlazorOutputs;_GenerateBlazorBootJson">
+    DependsOnTargets="_ResolveBlazorInputs;_ResolveBlazorOutputs;_GenerateBlazorBootJson">
 
     <ItemGroup>
-      <MonoWasmFile Include="$(MonoWasmRuntimePath)**\*.*" />
+      <MonoWasmFile Include="$(MonoWasmRuntimePath)*" />
+      <BlazorJSFile Include="$(BlazorJsPath)" />
+      <BlazorJSFile Include="$(BlazorJSMapPath)" />
+
       <BlazorOutputWithTargetPath Include="@(MonoWasmFile)">
-        <TargetOutputPath>$(TargetDir)$(BaseBlazorRuntimeWasmOutputPath)%(FileName)%(Extension)</TargetOutputPath>
+        <TargetOutputPath>$(BlazorRuntimeWasmOutputPath)%(FileName)%(Extension)</TargetOutputPath>
       </BlazorOutputWithTargetPath>
-      <BlazorOutputWithTargetPath Include="$(BlazorJsPath);$(BlazorJSMapPath)">
-        <TargetOutputPath>$(TargetDir)$(BaseBlazorJsOutputPath)%(FileName)%(Extension)</TargetOutputPath>
+      <BlazorOutputWithTargetPath Include="@(BlazorJSFile)">
+        <TargetOutputPath>$(BaseBlazorRuntimeOutputPath)%(FileName)%(Extension)</TargetOutputPath>
       </BlazorOutputWithTargetPath>
     </ItemGroup>
 
     <ItemGroup Label="Static content supplied by NuGet packages">
       <_BlazorPackageContentOutput Include="@(BlazorPackageContentFile)" Condition="%(SourcePackage) != ''">
-        <TargetOutputPath>$(TargetDir)$(BaseBlazorPackageContentOutputPath)%(SourcePackage)\%(RecursiveDir)\%(Filename)%(Extension)</TargetOutputPath>
+        <TargetOutputPath>$(BaseBlazorPackageContentOutputPath)%(SourcePackage)\%(RecursiveDir)\%(Filename)%(Extension)</TargetOutputPath>
       </_BlazorPackageContentOutput>
       <BlazorOutputWithTargetPath Include="@(_BlazorPackageContentOutput)" />
     </ItemGroup>
   </Target>
 
-  <Target Name="_PrepareBlazorInputs">
+  <Target Name="_ResolveBlazorInputs">
+    <PropertyGroup>
+      <!-- /obj/<<configuration>>/<<targetframework>>/blazor -->
+      <BlazorIntermediateOutputPath>$(IntermediateOutputPath)blazor\</BlazorIntermediateOutputPath>
+
+      <!-- /obj/<<configuration>>/<<targetframework>>/blazor/linker.descriptor.xml -->
+      <GeneratedBlazorLinkerDescriptor>$(BlazorIntermediateOutputPath)linker.descriptor.xml</GeneratedBlazorLinkerDescriptor>
+
+      <!-- /obj/<<configuration>>/<<targetframework>>/blazor/linker/ -->
+      <BlazorIntermediateLinkerOutputPath>$(BlazorIntermediateOutputPath)linker/</BlazorIntermediateLinkerOutputPath>
+
+      <!-- /obj/<<configuration>>/<<targetframework>>/blazor/blazor.boot.json -->
+      <BlazorBootJsonIntermediateOutputPath>$(BlazorIntermediateOutputPath)$(BlazorBootJsonName)</BlazorBootJsonIntermediateOutputPath>
+
+      <_BlazorLinkerOutputCache>$(IntermediateOutputPath)blazor.linker.output</_BlazorLinkerOutputCache>
+    </PropertyGroup>
+
+
     <ItemGroup>
       <_BlazorDependencyInput Include="@(ReferenceCopyLocalPaths->WithMetadataValue('Extension','.dll')->'%(FullPath)')" />
     </ItemGroup>
   </Target>
 
-  <Target Name="_ResolveBlazorOutputs" DependsOnTargets="_ResolveBlazorOutputsWhenLinked;_ResolveBlazorOutputsWhenUnlinked" />
+  <Target Name="_ResolveBlazorOutputs" DependsOnTargets="_ResolveBlazorOutputsWhenLinked;_ResolveBlazorOutputsWhenNotLinked">
+    <Error 
+      Message="Unrecongnized value for BlazorLinkOnBuild: '$(BlazorLinkOnBuild)'. Valid values are 'true' or 'false'." 
+      Condition="'$(BlazorLinkOnBuild)' != 'true' AND '$(BlazorLinkOnBuild)' != 'false'" />
+  </Target>
 
   <!--
   Linker enabled part of the pipeline:
@@ -170,8 +166,12 @@
       <_BlazorLinkerAdditionalOptions>-l $(MonoLinkerI18NAssemblies) $(AdditionalMonoLinkerOptions)</_BlazorLinkerAdditionalOptions>
     </PropertyGroup>
 
-    <!-- Clear the contents of /obj/<<configuration>>/<<targetframework>>/blazor/blazor/linker -->
-    <Delete Files="$(BlazorIntermediateLinkerOutputPath)*.dll" />
+    <!-- Clear the contents of /obj/<<configuration>>/<<targetframework>>/blazor/linker -->
+    <ItemGroup>
+      <_OldLinkedFile Include="$(BlazorIntermediateLinkerOutputPath)*.dll" />
+    </ItemGroup>
+
+    <Delete Files="@(_OldLinkedFile)" />
 
     <!-- Run the linker and put the results in /obj/<<configuration>>/<<targetframework>>/blazor/blazor/linker -->
     <Exec Command="dotnet &quot;$(MonoLinkerPath)&quot; $(_BlazorLinkerAdditionalOptions) @(_BlazorFolderLookupPaths, ' ') -o &quot;$(BlazorIntermediateLinkerOutputPath)&quot; @(_BlazorAssemblyDescriptorFiles, ' ') @(_BlazorAssembliesToLink, ' ')"  />
@@ -180,7 +180,7 @@
       <_LinkerResult Include="$(BlazorIntermediateLinkerOutputPath)*.dll" />
     </ItemGroup>
 
-    <WriteLinesToFile File="$(_BlazorLinkerOutputCache)" Lines="@(_LinkerResult)" />
+    <WriteLinesToFile File="$(_BlazorLinkerOutputCache)" Lines="@(_LinkerResult)" Overwrite="true" />
   </Target>
 
   <PropertyGroup>
@@ -189,7 +189,7 @@
 
   <UsingTask TaskName="ResolveBlazorRuntimeDependencies" AssemblyFile="$(BlazorTasksPath)" />
   <Target
-    Name="_ResolveBlazorOutputsWhenUnlinked"
+    Name="_ResolveBlazorOutputsWhenNotLinked"
     Condition="'$(BlazorLinkOnBuild)' != 'true'"
     Inputs="$(ProjectAssetsFile);
             @(IntermediateAssembly);
@@ -239,19 +239,15 @@
       <_AppReferences Include="@(BlazorOutputWithTargetPath->WithMetadataValue('Extension','.dll'))" />
       <_AppReferences Include="@(BlazorOutputWithTargetPath->WithMetadataValue('Extension','.pdb'))" Condition="'$(BlazorEnableDebugging)' == 'true'" />
     </ItemGroup>
-    <PropertyGroup>
-      <_BlazorLinkOnBuild Condition="'$(BlazorLinkOnBuild)' == 'true'">true</_BlazorLinkOnBuild>
-      <_BlazorLinkOnBuild Condition="'$(_BlazorLinkOnBuild)' == ''">false</_BlazorLinkOnBuild>
-    </PropertyGroup>
 
     <GenerateBlazorBootJson
       AssemblyPath="@(IntermediateAssembly)"
       References="@(_AppReferences)"
-      LinkerEnabled="$(_BlazorLinkOnBuild)"
+      LinkerEnabled="$(BlazorLinkOnBuild)"
       OutputPath="$(BlazorBootJsonIntermediateOutputPath)" />
 
     <ItemGroup>
-      <BlazorOutputWithTargetPath Include="$(BlazorBootJsonIntermediateOutputPath)" TargetOutputPath="$(TargetDir)$(BlazorBootJsonOutputPath)" Type="BootJson" />
+      <BlazorOutputWithTargetPath Include="$(BlazorBootJsonIntermediateOutputPath)" TargetOutputPath="$(BaseBlazorRuntimeOutputPath)$(BlazorBootJsonName)" />
       <FileWrites Include="$(BlazorBootJsonIntermediateOutputPath)" />
     </ItemGroup>
   </Target>
